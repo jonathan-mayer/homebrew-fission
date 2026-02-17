@@ -1,0 +1,68 @@
+name: Update Fission Formula
+
+on:
+    schedule:
+        - cron: "0 * * * *" # hourly
+    workflow_dispatch:
+
+jobs:
+    update-formula:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout tap repo
+              uses: actions/checkout@v6
+
+            - name: Get latest Fission release tag
+              id: get_release
+              run: |
+                  TAG=$(curl -s --retry 3 https://api.github.com/repos/fission/fission/releases/latest \
+                        | jq -r .tag_name)
+                  echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+
+            - name: Download Linux binary and compute checksum
+              run: |
+                  URL="https://github.com/fission/fission/releases/download/v${VERSION}/fission-${VERSION}-linux-amd64"
+                  curl -fL --retry 3 -o fission-$VERSION-linux-amd64 "$URL"
+                  SHA256=$(sha256sum fission-$VERSION-linux-amd64 | awk '{print $1}')
+                  echo "SHA256=$SHA256" >> $GITHUB_ENV
+
+            - name: Update formula file
+              run: |
+                  sed -i "s/^  version \".*\"/  version \"${VERSION}\"/" fission.rb
+                  sed -i "s|^  url \".*\"|  url \"https://github.com/fission/fission/releases/download/v${VERSION}/fission-${VERSION}-linux-amd64\"|" fission.rb
+                  sed -i "s/^  sha256 \".*\"/  sha256 \"${SHA256}\"/" fission.rb
+
+            - name: Validate formula
+              run: |
+                  brew install --build-from-source ./fission.rb
+                  brew audit --online --strict ./fission.rb
+
+            - name: Commit and push changes if any
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add fission.rb
+                  if ! git diff-index --quiet HEAD; then
+                    git commit -m "Update Fission CLI to ${VERSION}"
+                    git push
+                  else
+                    echo "No changes to commit"
+                  fi
+
+            - name: Create Git tag if not exists
+              run: |
+                  if git rev-parse "refs/tags/${VERSION}" >/dev/null 2>&1; then
+                    echo "Tag ${VERSION} already exists"
+                  else
+                    git tag "${VERSION}"
+                    git push origin "${VERSION}"
+                  fi
+
+            - name: Create GitHub release if not exists
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ env.VERSION }}
+                  name: ${{ env.VERSION }}
+                  draft: false
+                  prerelease: false
