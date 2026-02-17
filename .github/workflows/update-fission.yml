@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout tap repo
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          tags: true
 
       - name: Get latest Fission release tag
         id: get_release
@@ -32,7 +35,7 @@ jobs:
       - name: Update formula file
         run: |
           sed -i "s/^  version \".*\"/  version \"${VERSION}\"/" fission.rb
-          sed -i "s|^    url \".*\"|    url \"https://github.com/fission/fission/releases/download/v${VERSION}/fission-${VERSION}-linux-amd64\"|" fission.rb
+          sed -i "s|^    url \".*\"|    url \"https://github.com/fission/fission/releases/download/v${VERSION}/fission-v${VERSION}-linux-amd64\"|" fission.rb
           sed -i "s/^    sha256 \".*\"/    sha256 \"${SHA256}\"/" fission.rb
 
       - name: Commit and push changes if any
