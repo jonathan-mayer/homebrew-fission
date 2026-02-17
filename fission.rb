@@ -1,7 +1,7 @@
 class Fission < Formula
   desc "Fission CLI for Kubernetes serverless functions"
   homepage "https://fission.io"
-  version "1.22.0"
+  version "0.0.0"
   
   on_linux do
     url "https://github.com/fission/fission/releases/download/v#{version}/fission-#{version}-linux-amd64"

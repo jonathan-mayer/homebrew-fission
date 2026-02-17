@@ -63,3 +63,5 @@ jobs:
           name: ${{ env.VERSION }}
           draft: false
           prerelease: false
+          makeLatest: true
+          skipIfReleaseExists: true
