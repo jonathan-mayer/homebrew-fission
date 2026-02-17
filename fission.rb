@@ -9,7 +9,7 @@ class Fission < Formula
   end
 
   def install
-    bin.install "fission-#{version}-linux-amd64" => "fission"
+    bin.install "fission-v#{version}-linux-amd64" => "fission"
   end
 
   test do
