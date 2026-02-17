@@ -2,7 +2,7 @@ name: Update Fission Formula
 
 on:
   schedule:
-    - cron: "0 * * * *" # hourly
+    - cron: "0 */6 * * *" # hourly
   workflow_dispatch:
 
 jobs:
