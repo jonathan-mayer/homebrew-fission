@@ -1,11 +1,11 @@
 class Fission < Formula
   desc "Fission CLI for Kubernetes serverless functions"
   homepage "https://fission.io"
-  version "1.25.0"
+  version "1.27.0"
   
   on_linux do
     url "https://github.com/fission/fission/releases/download/v#{version}/fission-v#{version}-linux-amd64"
-    sha256 "6ce8dfaba37e8908be8a109907bd869dfaccd03073e175a03ff29aebf30efcd6" # to be filled by automation
+    sha256 "69eb82c53945ae8bdd5842933a88459b7004fe8eb2f0ab1c3de0a814e04ca9e9" # to be filled by automation
   end
 
   def install
